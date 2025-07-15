@@ -1,10 +1,39 @@
-const produktyDiv = document.getElementById('produkty');
-const koszykDiv = document.getElementById('koszyk');
-const ukrytePole = document.getElementById('ukryte-zamowienie');
-const potwierdzenie = document.getElementById('potwierdzenie');
-let koszyk = [];
+function getCart() {
+    return JSON.parse(localStorage.getItem('koszyk')) || [];
+}
 
-function wyswietlProdukty() {
+function saveCart(cart) {
+    localStorage.setItem('koszyk', JSON.stringify(cart));
+}
+
+function addToCart(i) {
+    const cart = getCart();
+    const found = cart.find(item => item.index === i);
+    if (found) {
+        found.qty += 1;
+    } else {
+        cart.push({ index: i, qty: 1 });
+    }
+    saveCart(cart);
+    renderCart();
+}
+
+function removeFromCart(i) {
+    let cart = getCart();
+    const found = cart.find(item => item.index === i);
+    if (found) {
+        found.qty -= 1;
+        if (found.qty <= 0) {
+            cart = cart.filter(item => item.index !== i);
+        }
+        saveCart(cart);
+    }
+    renderCart();
+}
+
+function renderProducts() {
+    const produktyDiv = document.getElementById('produkty');
+    if (!produktyDiv) return;
     produkty.forEach((p, index) => {
         const el = document.createElement('div');
         el.className = 'produkt';
@@ -13,49 +42,65 @@ function wyswietlProdukty() {
             <h2>${p.nazwa}</h2>
             <p>${p.opis}</p>
             <p>${p.cena} zł</p>
-            <button onclick="dodajDoKoszyka(${index})">Dodaj do koszyka</button>
+            <button onclick="addToCart(${index})">Dodaj do koszyka</button>
         `;
         produktyDiv.appendChild(el);
     });
 }
 
-function dodajDoKoszyka(i) {
-    koszyk.push(produkty[i]);
-    aktualizujKoszyk();
-}
-
-function aktualizujKoszyk() {
-    koszykDiv.innerHTML = '';
+function renderCart() {
+    const lista = document.getElementById('koszyk-lista');
+    const sumaDiv = document.getElementById('koszyk-suma');
+    const btn = document.getElementById('btn-zamawiam');
+    if (!lista) return;
+    const cart = getCart();
+    lista.innerHTML = '';
     let suma = 0;
-    koszyk.forEach(p => {
-        const item = document.createElement('div');
-        item.textContent = `${p.nazwa} - ${p.cena} zł`;
-        koszykDiv.appendChild(item);
-        suma += p.cena;
+    cart.forEach(item => {
+        const p = produkty[item.index];
+        const row = document.createElement('div');
+        row.className = 'koszyk-item';
+        row.innerHTML = `${p.nazwa} x ${item.qty} - ${p.cena * item.qty} zł <button onclick="removeFromCart(${item.index})">Usuń</button>`;
+        lista.appendChild(row);
+        suma += p.cena * item.qty;
     });
-    const sumaEl = document.createElement('div');
-    sumaEl.textContent = `Suma: ${suma} zł`;
-    koszykDiv.appendChild(sumaEl);
-    ukrytePole.value = koszyk.map(p => p.nazwa).join(', ');
+    sumaDiv.textContent = `Suma: ${suma} zł`;
+    if (btn) btn.style.display = cart.length ? 'inline-block' : 'none';
 }
 
-document.getElementById('formularz').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const form = e.target;
-    const dane = new FormData(form);
+function prepareOrderForm() {
+    const ukrytePole = document.getElementById('ukryte-zamowienie');
+    if (!ukrytePole) return;
+    const cart = getCart();
+    const summary = cart.map(item => `${produkty[item.index].nazwa} x ${item.qty}`).join(', ');
+    ukrytePole.value = summary;
+}
 
-    fetch(form.action, {
-        method: 'POST',
-        body: dane,
-        headers: {
-            'Accept': 'application/json'
-        }
-    }).then(response => {
-        if (response.ok) {
-            form.classList.add('ukryte');
-            potwierdzenie.classList.remove('ukryte');
-        }
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    renderProducts();
+    renderCart();
+    prepareOrderForm();
 });
 
-wyswietlProdukty();
+const potwierdzenie = document.getElementById('potwierdzenie');
+const form = document.getElementById('formularz');
+if (form) {
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const dane = new FormData(form);
+        fetch(form.action, {
+            method: 'POST',
+            body: dane,
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                form.classList.add('ukryte');
+                if (potwierdzenie) potwierdzenie.classList.remove('ukryte');
+                localStorage.removeItem('koszyk');
+            }
+        });
+    });
+}
+

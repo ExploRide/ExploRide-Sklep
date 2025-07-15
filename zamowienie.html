@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zamówienie - ExploRide</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <script src="produkty.js" defer></script>
+    <script src="skrypt.js" defer></script>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="Logo" class="logo">
+        <nav>
+            <ul>
+                <li><a href="index.html">Katalog</a></li>
+                <li><a href="koszyk.html">Koszyk</a></li>
+                <li><a href="kontakt.html">Kontakt</a></li>
+                <li><a href="polityka.html">Polityka prywatności</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="zamowienie">
+            <h1>Formularz zamówienia</h1>
+            <form id="formularz" action="https://formspree.io/f/xpwlzzzq" method="POST">
+                <div>
+                    <label>Imię i nazwisko
+                        <input type="text" name="imie_nazwisko" required>
+                    </label>
+                </div>
+                <div>
+                    <label>E-mail
+                        <input type="email" name="email" required>
+                    </label>
+                </div>
+                <div>
+                    <label>Adres / paczkomat
+                        <input type="text" name="adres" required>
+                    </label>
+                </div>
+                <div>
+                    <label>Sposób wysyłki
+                        <select name="wysylka" required>
+                            <option value="inpost">InPost</option>
+                            <option value="osobisty">Odbiór osobisty</option>
+                        </select>
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="rodo" required>
+                        Wyrażam zgodę na przetwarzanie danych osobowych (RODO)
+                    </label>
+                </div>
+                <input type="hidden" name="zamowienie" id="ukryte-zamowienie">
+                <button type="submit">Zamawiam i płacę</button>
+            </form>
+            <div id="potwierdzenie" class="potwierdzenie ukryte">
+                <h2>Dziękujemy za zamówienie!</h2>
+                <p>Prosimy o dokonanie przelewu na numer konta: <strong>00 0000 0000 0000 0000 0000 0000</strong></p>
+                <p>Możliwa płatność BLIK na numer telefonu: <strong>500 000 000</strong></p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2024 ExploRide
+    </footer>
+</body>
+</html>

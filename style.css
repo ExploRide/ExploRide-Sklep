@@ -88,3 +88,17 @@ footer {
         align-items: center;
     }
 }
+
+.button {
+    background-color: #aa0101;
+    color: #fff;
+    padding: 10px 15px;
+    text-decoration: none;
+}
+.button:hover {
+    background-color: #890101;
+}
+
+.koszyk-item {
+    margin-bottom: 5px;
+}
